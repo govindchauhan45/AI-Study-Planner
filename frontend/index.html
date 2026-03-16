@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Planner - Your Personal Study Assistant</title>
+    <meta name="description" content="Transform your study routine with AI-powered planning, task management, and personalized study timers. Boost productivity and achieve academic excellence.">
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- React & Babel from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: hsl(250, 100%, 98%);
+            --foreground: hsl(250, 20%, 15%);
+            --card: hsl(0, 0%, 100%);
+            --card-foreground: hsl(250, 20%, 15%);
+            --primary: hsl(262, 83%, 58%);
+            --primary-foreground: hsl(0, 0%, 100%);
+            --secondary: hsl(174, 62%, 47%);
+            --secondary-foreground: hsl(0, 0%, 100%);
+            --muted: hsl(250, 30%, 95%);
+            --muted-foreground: hsl(250, 10%, 45%);
+            --accent: hsl(280, 90%, 65%);
+            --accent-foreground: hsl(0, 0%, 100%);
+            --destructive: hsl(0, 84%, 60%);
+            --border: hsl(250, 30%, 90%);
+            --input: hsl(250, 30%, 90%);
+            --radius: 1rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom right, var(--background), var(--muted));
+            color: var(--foreground);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, var(--primary), var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted-foreground);
+            margin-top: 0.5rem;
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: 280px 1fr 400px;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .button-primary {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: var(--primary-foreground);
+        }
+
+        .button-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            color: white;
+        }
+
+        .button-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .button-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--foreground);
+        }
+
+        .button-outline:hover:not(:disabled) {
+            background: var(--muted);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-icon {
+            padding: 0.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            justify-content: center;
+        }
+
+        .button-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            resize: vertical;
+            font-family: inherit;
+            font-size: 0.875rem;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .timer-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--primary-foreground);
+        }
+
+        .timer-display {
+            font-size: 3.5rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 1.5rem 0;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(to bottom right, var(--background), var(--muted));
+            border: 1px solid var(--border);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-day {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            border: 1px solid var(--border);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s;
+        }
+
+        .schedule-day:hover {
+            transform: translateX(4px);
+            border-color: var(--primary);
+        }
+
+        .schedule-subject {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .schedule-input {
+            width: 4rem;
+            padding: 0.25rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+
+        .checkbox {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .mood-button {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            background: var(--card);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mood-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .mood-button.active {
+            border-color: var(--primary);
+            background: linear-gradient(to bottom right, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .quote-box {
+            padding: 1rem;
+            background: linear-gradient(to bottom right, var(--muted), rgba(255,255,255,0.5));
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .response-box {
+            padding: 1rem;
+            background: var(--muted);
+            border-radius: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            border: 1px solid var(--border);
+        }
+
+        .music-suggestion {
+            background: linear-gradient(to bottom right, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .music-player {
+            margin-top: 1rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .music-player iframe {
+            width: 100%;
+            height: 200px;
+            border: none;
+        }
+
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .theme-button {
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--card);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .theme-button:hover {
+            transform: scale(1.02);
+        }
+
+        .theme-button.active {
+            border-color: var(--primary);
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            color: white;
+        }
+
+        .subject-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .subject-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .flex-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: inline-block;
+        }
+
+        .icon-sm {
+            width: 1rem;
+            height: 1rem;
+            display: inline-block;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease-out;
+            min-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted-foreground);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .animate-bounce {
+            animation: bounce 3s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 640px) {
+            .timer-display {
+                font-size: 2.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .mood-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <div class="toast-container" id="toast-container"></div>
+
+    <script type="text/babel">
+
+// ===============================
+// ENCRYPTED .DAT FILE STORAGE WITH AUTO-INDEXING
+// ===============================
+
+// Simple encryption utilities
+const ENCRYPTION_KEY = 'study-app-secure-key-2024';
+
+const encrypt = (text) => {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        result += String.fromCharCode(
+            text.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length)
+        );
+    }
+    return btoa(result);
+};
+
+const decrypt = (encryptedText) => {
+    try {
+        const decoded = atob(encryptedText);
+        let result = '';
+        for (let i = 0; i < decoded.length; i++) {
+            result += String.fromCharCode(
+                decoded.charCodeAt(i) ^ ENCRYPTION_KEY.charCodeAt(i % ENCRYPTION_KEY.length)
+            );
+        }
+        return result;
+    } catch (err) {
+        console.warn("Decryption failed:", err);
+        return null;
+    }
+};
+
+// File operations using File System Access API with fallback
+class EncryptedStorage {
+    constructor() {
+        this.fileHandle = null;
+        this.dataIndex = {};
+        this.dataCache = {};
+        this.isReady = false;
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Try to load existing data file
+            await this.loadDataFile();
+            this.isReady = true;
+            console.log("Encrypted storage initialized successfully");
+        } catch (err) {
+            console.warn("Storage init failed, using fallback:", err);
+            this.isReady = true;
+        }
+    }
+
+    async loadDataFile() {
+        try {
+            // Check if File System Access API is supported
+            if ('showOpenFilePicker' in window) {
+                // Try to load from previous session
+                const existingData = localStorage.getItem('encrypted_storage_backup');
+                if (existingData) {
+                    const decrypted = decrypt(existingData);
+                    if (decrypted) {
+                        const parsed = JSON.parse(decrypted);
+                        this.dataCache = parsed.data || {};
+                        this.dataIndex = parsed.index || {};
+                        this.buildIndex();
+                        return;
+                    }
+                }
+            }
+            
+            // Fallback to localStorage with encryption
+            this.loadFromLocalStorage();
+        } catch (err) {
+            console.warn("Failed to load data file:", err);
+            this.initializeEmpty();
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const keys = Object.keys(localStorage);
+            for (const key of keys) {
+                if (key.startsWith('encrypted_')) {
+                    const encryptedData = localStorage.getItem(key);
+                    const decrypted = decrypt(encryptedData);
+                    if (decrypted) {
+                        this.dataCache[key.replace('encrypted_', '')] = JSON.parse(decrypted);
+                    }
+                }
+            }
+            this.buildIndex();
+        } catch (err) {
+            console.warn("LocalStorage load failed:", err);
+            this.initializeEmpty();
+        }
+    }
+
+    initializeEmpty() {
+        this.dataCache = {};
+        this.dataIndex = {};
+        this.buildIndex();
+    }
+
+    buildIndex() {
+        this.dataIndex = {};
+        Object.keys(this.dataCache).forEach((key, index) => {
+            this.dataIndex[key] = {
+                index: index,
+                lastModified: Date.now(),
+                size: JSON.stringify(this.dataCache[key]).length
+            };
+        });
+    }
+
+    async save(key, data) {
+        try {
+            this.dataCache[key] = data;
+            
+            // Update index
+            this.dataIndex[key] = {
+                index: Object.keys(this.dataIndex).length,
+                lastModified: Date.now(),
+                size: JSON.stringify(data).length
+            };
+
+            // Save encrypted data
+            const encryptedData = encrypt(JSON.stringify(data));
+            localStorage.setItem(`encrypted_${key}`, encryptedData);
+
+            // Create backup of entire storage
+            await this.createBackup();
+            
+            return true;
+        } catch (err) {
+            console.warn("Save failed:", err);
+            return false;
+        }
+    }
+
+    async load(key, fallback = null) {
+        try {
+            if (this.dataCache[key]) {
+                return this.dataCache[key];
+            }
+
+            // Try to load from localStorage
+            const encryptedData = localStorage.getItem(`encrypted_${key}`);
+            if (encryptedData) {
+                const decrypted = decrypt(encryptedData);
+                if (decrypted) {
+                    const data = JSON.parse(decrypted);
+                    this.dataCache[key] = data;
+                    return data;
+                }
+            }
+
+            return fallback;
+        } catch (err) {
+            console.warn("Load failed for key:", key, err);
+            return fallback;
+        }
+    }
+
+    async createBackup() {
+        try {
+            const backupData = {
+                data: this.dataCache,
+                index: this.dataIndex,
+                timestamp: Date.now(),
+                version: '1.0'
+            };
+
+            const encryptedBackup = encrypt(JSON.stringify(backupData));
+            localStorage.setItem('encrypted_storage_backup', encryptedBackup);
+
+            // If File System Access is available, save to .dat file
+            if ('showSaveFilePicker' in window && this.fileHandle) {
+                try {
+                    const writable = await this.fileHandle.createWritable();
+                    await writable.write(encryptedBackup);
+                    await writable.close();
+                } catch (fsErr) {
+                    console.warn("File system save failed:", fsErr);
+                }
+            }
+        } catch (err) {
+            console.warn("Backup creation failed:", err);
+        }
+    }
+
+    async exportData() {
+        try {
+            const exportData = {
+                data: this.dataCache,
+                index: this.dataIndex,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            const encryptedData = encrypt(JSON.stringify(exportData));
+            
+            // Create download link
+            const blob = new Blob([encryptedData], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `study-data-${Date.now()}.dat`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            return true;
+        } catch (err) {
+            console.warn("Export failed:", err);
+            return false;
+        }
+    }
+
+    async importData() {
+        try {
+            if ('showOpenFilePicker' in window) {
+                const [fileHandle] = await window.showOpenFilePicker({
+                    types: [{
+                        description: 'Study Data Files',
+                        accept: {
+                            'application/octet-stream': ['.dat']
+                        }
+                    }]
+                });
+
+                const file = await fileHandle.getFile();
+                const encryptedContent = await file.text();
+                const decrypted = decrypt(encryptedContent);
+                
+                if (decrypted) {
+                    const importedData = JSON.parse(decrypted);
+                    this.dataCache = importedData.data || {};
+                    this.dataIndex = importedData.index || {};
+                    
+                    // Save to localStorage
+                    Object.keys(this.dataCache).forEach(key => {
+                        const encrypted = encrypt(JSON.stringify(this.dataCache[key]));
+                        localStorage.setItem(`encrypted_${key}`, encrypted);
+                    });
+
+                    await this.createBackup();
+                    return true;
+                }
+            }
+            return false;
+        } catch (err) {
+            console.warn("Import failed:", err);
+            return false;
+        }
+    }
+
+    getIndex() {
+        return this.dataIndex;
+    }
+
+    async clearAll() {
+        this.dataCache = {};
+        this.dataIndex = {};
+        
+        // Clear localStorage
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith('encrypted_')) {
+                localStorage.removeItem(key);
+            }
+        });
+        
+        localStorage.removeItem('encrypted_storage_backup');
+        await this.createBackup();
+    }
+}
+
+// Global storage instance
+const encryptedStorage = new EncryptedStorage();
+
+// Updated storage functions
+const saveToCache = async (key, data) => {
+    return await encryptedStorage.save(key, data);
+};
+
+const getFromCache = async (key, fallback = null) => {
+    return await encryptedStorage.load(key, fallback);
+};
+
+// Enhanced LocalStorage helper with encryption
+const saveLS = async (key, value) => {
+    return await encryptedStorage.save(key, value);
+};
+
+const loadLS = async (key, fallback = null) => {
+    return await encryptedStorage.load(key, fallback);
+};
+
+// Auto-indexing and data management
+const autoIndex = () => {
+    const index = encryptedStorage.getIndex();
+    console.log("Data Index:", index);
+    return index;
+};
+
+// Auto-initialize when page loads
+window.addEventListener('load', async () => {
+    // Wait for storage to be ready
+    while (!encryptedStorage.isReady) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log("Encrypted storage ready!");
+    autoIndex();
+    
+    // Show storage controls in console
+    window.encryptedStorage = encryptedStorage;
+    console.log("Storage controls available: window.encryptedStorage");
+});
+
+        const { useState, useEffect, useRef } = React;
+
+        // Configuration - Use backend API
+        const API_BASE = 'https://study-planner-selvavelayutham5899-ciigl12k.apn.leapcell.dev';
+
+        // Toast system
+        const showToast = (message, type = 'info') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Theme data
+        const themes = {
+            purple: {
+                name: '💜 Purple',
+                primary: 'hsl(262, 83%, 58%)',
+                accent: 'hsl(280, 90%, 65%)',
+                secondary: 'hsl(174, 62%, 47%)'
+            },
+            blue: {
+                name: '💙 Blue',
+                primary: 'hsl(220, 90%, 60%)',
+                accent: 'hsl(200, 100%, 70%)',
+                secondary: 'hsl(180, 100%, 50%)'
+            },
+            green: {
+                name: '💚 Green',
+                primary: 'hsl(120, 70%, 50%)',
+                accent: 'hsl(140, 80%, 60%)',
+                secondary: 'hsl(100, 90%, 40%)'
+            },
+            orange: {
+                name: '🧡 Orange',
+                primary: 'hsl(30, 90%, 60%)',
+                accent: 'hsl(45, 100%, 70%)',
+                secondary: 'hsl(15, 100%, 50%)'
+            }
+        };
+
+        // StudyTimer Component
+        const StudyTimer = () => {
+            const [seconds, setSeconds] = useState(0);
+            const [isRunning, setIsRunning] = useState(false);
+            const intervalRef = useRef(null);
+
+            useEffect(() => {
+                if (isRunning) {
+                    intervalRef.current = setInterval(() => {
+                        setSeconds(s => s + 1);
+                    }, 1000);
+                } else {
+                    if (intervalRef.current) {
+                        clearInterval(intervalRef.current);
+                    }
+                }
+
+                return () => {
+                    if (intervalRef.current) {
+                        clearInterval(intervalRef.current);
+                    }
+                };
+            }, [isRunning]);
+
+            const formatTime = (totalSeconds) => {
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const secs = totalSeconds % 60;
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            const toggleTimer = () => {
+                setIsRunning(!isRunning);
+                showToast(isRunning ? '⏸️ Timer paused' : '⏰ Timer started! Focus time!');
+            };
+
+            const resetTimer = () => {
+                setIsRunning(false);
+                setSeconds(0);
+                showToast('🔄 Timer reset');
+            };
+
+            return (
+                <div className="card timer-card">
+                    <div className="card-header" style={{justifyContent: 'center'}}>
+                        <span className="icon">⏰</span>
+                        <h2 className="card-title">Study Timer</h2>
+                    </div>
+
+                    <div className="timer-display">
+                        {formatTime(seconds)}
+                    </div>
+
+                    <p style={{textAlign: 'center', marginBottom: '1.5rem', opacity: 0.9}}>
+                        {isRunning ? "Keep going! You're doing great! 💪" : "Ready to study? Start the timer! 🎯"}
+                    </p>
+
+                    <div className="flex-buttons" style={{justifyContent: 'center'}}>
+                        <button onClick={toggleTimer} className="button button-secondary">
+                            <span className="icon-sm">{isRunning ? "⏸️" : "▶️"}</span>
+                            {isRunning ? 'Pause' : 'Start'}
+                        </button>
+                        <button onClick={resetTimer} disabled={seconds === 0} className="button button-secondary">
+                            <span className="icon-sm">🔄</span>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // TaskManager Component
+        const TaskManager = () => {
+            const [tasks, setTasks] = useState([]);
+            const [newTask, setNewTask] = useState('');
+
+            useEffect(() => {
+                const loadTasks = async () => {
+                    const saved = await loadLS('tasks', []);
+                    setTasks(saved || []);
+                };
+                loadTasks();
+            }, []);
+
+            const saveTasks = async (updatedTasks) => {
+                setTasks(updatedTasks);
+                await saveLS('tasks', updatedTasks);
+            };
+
+            const addTask = () => {
+                const text = newTask.trim();
+                if (!text) {
+                    showToast('Please enter a task!', 'error');
+                    return;
+                }
+
+                const task = {
+                    id: Date.now().toString(),
+                    text
+                };
+
+                saveTasks([...tasks, task]);
+                setNewTask('');
+                showToast('✅ Task added successfully!');
+            };
+
+            const removeTask = (id) => {
+                saveTasks(tasks.filter(task => task.id !== id));
+                showToast('🗑️ Task removed!');
+            };
+
+            return (
+                <div className="card">
+                    <div className="card-header">
+                        <span className="icon" style={{color: 'var(--secondary)'}}>✅</span>
+                        <h2 className="card-title gradient-text">Study Tasks</h2>
+                    </div>
+
+                    <div className="flex-buttons" style={{marginBottom: '1rem'}}>
+                        <input
+                            type="text"
+                            value={newTask}
+                            onChange={(e) => setNewTask(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                            placeholder="Add a new study task"
+                            className="input"
+                            style={{flex: 1}}
+                        />
+                        <button onClick={addTask} className="button button-primary">
+                            <span className="icon-sm">➕</span>
+                            Add
+                        </button>
+                    </div>
+
+                    <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                        {tasks.length === 0 ? (
+                            <div className="empty-state">
+                                <p>No tasks yet. Add your first study task!</p>
+                            </div>
+                        ) : (
+                            tasks.map(task => (
+                                <div key={task.id} className="task-item">
+                                    <span>{task.text}</span>
+                                    <button onClick={() => removeTask(task.id)} className="button button-icon button-outline">
+                                        <span className="icon-sm">🗑️</span>
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // StudyCalendar Component with encrypted storage
+        const StudyCalendar = () => {
+            const [subjects, setSubjects] = useState(['Math', 'Science', 'Literature', 'History']);
+            const [newSubject, setNewSubject] = useState('');
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const [schedule, setSchedule] = useState([]);
+            const [completion, setCompletion] = useState({});
+
+            useEffect(() => {
+                const loadData = async () => {
+                    const savedSubjects = await loadLS('subjects', null);
+                    if (savedSubjects) {
+                        setSubjects(savedSubjects);
+                    }
+
+                    const savedSchedule = await loadLS('studySchedule', null);
+                    if (savedSchedule) {
+                        setSchedule(savedSchedule);
+                    } else {
+                        await initializeSchedule(subjects);
+                    }
+
+                    const savedCompletion = await loadLS('taskCompletion', {});
+                    setCompletion(savedCompletion);
+                };
+                loadData();
+            }, []);
+
+            const initializeSchedule = async (subjectList) => {
+                const defaultSchedule = Array.from({ length: 7 }, () => {
+                    const daySchedule = {};
+                    subjectList.forEach(subject => daySchedule[subject] = 0.5);
+                    return daySchedule;
+                });
+
+                setSchedule(defaultSchedule);
+                await saveLS("studySchedule", defaultSchedule);
+            };
+
+            const addSubject = async () => {
+                const subject = newSubject.trim();
+                if (!subject) {
+                    showToast("Please enter a subject!", "error");
+                    return;
+                }
+                if (subjects.includes(subject)) {
+                    showToast("Subject already exists!", "error");
+                    return;
+                }
+
+                const updatedSubjects = [...subjects, subject];
+                setSubjects(updatedSubjects);
+                await saveLS("subjects", updatedSubjects);
+
+                const newSchedule = schedule.map(day => ({
+                    ...day,
+                    [subject]: 0.5
+                }));
+
+                setSchedule(newSchedule);
+                await saveLS("studySchedule", newSchedule);
+
+                setNewSubject('');
+                showToast("📚 Subject added successfully!");
+            };
+
+            const removeSubject = async (subject) => {
+                if (subjects.length <= 1) {
+                    showToast("At least one subject needed!", "error");
+                    return;
+                }
+
+                const updatedSubjects = subjects.filter(s => s !== subject);
+                setSubjects(updatedSubjects);
+                await saveLS("subjects", updatedSubjects);
+
+                const newSchedule = schedule.map(day => {
+                    const { [subject]: removed, ...rest } = day;
+                    return rest;
+                });
+
+                setSchedule(newSchedule);
+                await saveLS("studySchedule", newSchedule);
+
+                showToast("❌ Subject removed");
+            };
+
+            const updateHours = async (dayIndex, subject, hours) => {
+                const newSchedule = [...schedule];
+                newSchedule[dayIndex][subject] = hours;
+                setSchedule(newSchedule);
+                await saveLS("studySchedule", newSchedule);
+            };
+
+            const toggleCompletion = async (day, subject) => {
+                const key = `${day}-${subject}`;
+                const newCompletion = { ...completion, [key]: !completion[key] };
+                setCompletion(newCompletion);
+                await saveLS("taskCompletion", newCompletion);
+
+                const isComplete = subjects.every(s => newCompletion[`${day}-${s}`]);
+                if (isComplete) {
+                    showToast(`🎉 You completed all ${day} tasks!`);
+                }
+            };
+
+            return (
+                <div className="card">
+                    <div className="card-header">
+                        <span className="icon" style={{ color: 'var(--primary)' }}>📅</span>
+                        <h2 className="card-title gradient-text">Weekly Plan</h2>
+                    </div>
+
+                    {/* Subject management */}
+                    <div style={{ marginBottom: "1rem" }}>
+                        <h4>Manage Subjects</h4>
+
+                        <div className="flex-buttons">
+                            <input
+                                className="input"
+                                value={newSubject}
+                                onChange={e => setNewSubject(e.target.value)}
+                                onKeyDown={e => e.key === "Enter" && addSubject()}
+                                placeholder="Add new subject"
+                            />
+                            <button className="button button-primary button-sm" onClick={addSubject}>
+                                ➕ Add
+                            </button>
+                        </div>
+
+                        <div className="subject-list">
+                            {subjects.map(subject => (
+                                <div key={subject} className="subject-item">
+                                    <span style={{ flex: 1 }}>{subject}</span>
+                                    <button
+                                        onClick={() => removeSubject(subject)}
+                                        className="button button-outline button-sm"
+                                        disabled={subjects.length <= 1}
+                                    >
+                                        ❌
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Weekly schedule */}
+                    <div>
+                        {schedule.length > 0 && days.map((day, index) => {
+                            const isComplete = subjects.every(
+                                subject => completion[`${day}-${subject}`]
+                            );
+
+                            return (
+                                <div key={day} className="schedule-day">
+                                    <h4>{day}</h4>
+
+                                    {isComplete && (
+                                        <span style={{ float: "right", color: "green" }}>🏆</span>
+                                    )}
+
+                                    {subjects.map(subject => (
+                                        <div
+                                            key={subject}
+                                            className="schedule-subject"
+                                        >
+                                            <span>{subject}</span>
+                                            <div style={{ display: "flex", gap: "0.5rem" }}>
+                                                <input
+                                                    type="number"
+                                                    step="0.1"
+                                                    min="0"
+                                                    max="8"
+                                                    value={schedule[index][subject]}
+                                                    className="schedule-input"
+                                                    onChange={e =>
+                                                        updateHours(index, subject, parseFloat(e.target.value) || 0)
+                                                    }
+                                                />
+                                                <input
+                                                    type="checkbox"
+                                                    checked={completion[`${day}-${subject}`] || false}
+                                                    className="checkbox"
+                                                    onChange={() => toggleCompletion(day, subject)}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        // Music Component with encrypted storage
+        const MusicMood = () => {
+            const [activeMood, setActiveMood] = useState(null);
+            const [language, setLanguage] = useState("english");
+            const [ptype, setPtype] = useState("lofi");
+            const [suggestion, setSuggestion] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const moods = [
+                { id: 'focused', icon: '🎯', name: 'Focused' },
+                { id: 'calm', icon: '😌', name: 'Calm' },
+                { id: 'energetic', icon: '⚡', name: 'Energetic' },
+                { id: 'melancholy', icon: '🌙', name: 'Reflective' }
+            ];
+
+            const playlistTypes = [
+                { id: "lofi", name: "LoFi" },
+                { id: "pop", name: "Pop" },
+                { id: "melody", name: "Melody" },
+                { id: "beats", name: "Beats" }
+            ];
+
+            const selectMood = async (mood) => {
+                setActiveMood(mood.id);
+                setLoading(true);
+
+                try {
+                    const res = await fetch(`${API_BASE}/api/music-suggest`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            mood: mood.id,
+                            language: language,
+                            ptype: ptype
+                        })
+                    });
+
+                    const d = await res.json();
+                    setSuggestion(d);
+                } catch (e) {
+                    showToast("Error loading music", "error");
+                }
+
+                setLoading(false);
+            };
+
+            return (
+                <div className="card">
+                    <div className="card-header">
+                        <span className="icon" style={{ color: 'var(--accent)' }}>🎵</span>
+                        <h2 className="card-title gradient-text">Music Player</h2>
+                    </div>
+
+                    <label>Language</label>
+                    <select value={language} className="select" onChange={(e) => setLanguage(e.target.value)}>
+                        <option value="english">English</option>
+                        <option value="tamil">Tamil</option>
+                    </select>
+
+                    <label style={{ marginTop: "1rem" }}>Playlist Type</label>
+                    <select value={ptype} className="select" onChange={(e) => setPtype(e.target.value)}>
+                        {playlistTypes.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                    </select>
+
+                    <div className="mood-grid" style={{ marginTop: "1rem" }}>
+                        {moods.map(mood => (
+                            <button
+                                key={mood.id}
+                                className={`mood-button ${activeMood === mood.id ? "active" : ""}`}
+                                onClick={() => selectMood(mood)}
+                            >
+                                {mood.icon} {mood.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    {loading && <p style={{ marginTop: "1rem" }}>Loading...</p>}
+
+                    {suggestion && !loading && (
+                        <div className="music-suggestion">
+                            <h3>{suggestion.playlist_name}</h3>
+                            <p>{suggestion.description}</p>
+
+                            <iframe
+                                className="music-player"
+                                src={suggestion.spotify_embed || suggestion.youtube_url}
+                                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                                loading="lazy"
+                                style={{
+                                    width: "100%",
+                                    height: "380px",
+                                    border: "none",
+                                    borderRadius: "12px"
+                                }}
+                            ></iframe>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // Theme Selector Component with encrypted storage
+        const ThemeSelector = () => {
+            const [activeTheme, setActiveTheme] = useState('purple');
+
+            useEffect(() => {
+                const loadTheme = async () => {
+                    const saved = await loadLS('selectedTheme', 'purple');
+                    if (saved && themes[saved]) {
+                        setActiveTheme(saved);
+                        applyTheme(themes[saved]);
+                    }
+                };
+                loadTheme();
+            }, []);
+
+            const applyTheme = (theme) => {
+                const root = document.documentElement;
+                root.style.setProperty('--primary', theme.primary);
+                root.style.setProperty('--accent', theme.accent);
+                root.style.setProperty('--secondary', theme.secondary);
+            };
+
+            const selectTheme = async (themeId) => {
+                setActiveTheme(themeId);
+                await saveLS('selectedTheme', themeId);
+                applyTheme(themes[themeId]);
+                showToast(`🎨 ${themes[themeId].name} theme applied!`);
+            };
+
+            return (
+                <div className="card">
+                    <div className="card-header">
+                        <span className="icon" style={{color: 'var(--primary)'}}>🎨</span>
+                        <h2 className="card-title gradient-text">Themes</h2>
+                    </div>
+
+                    <p style={{fontSize: '0.875rem', marginBottom: '1rem', color: 'var(--muted-foreground)'}}>
+                        Choose your favorite color theme for the app
+                    </p>
+
+                    <div className="theme-selector">
+                        {Object.entries(themes).map(([themeId, theme]) => (
+                            <button
+                                key={themeId}
+                                onClick={() => selectTheme(themeId)}
+                                className={`theme-button ${activeTheme === themeId ? 'active' : ''}`}
+                            >
+                                <div style={{
+                                    width: '1rem',
+                                    height: '1rem',
+                                    borderRadius: '50%',
+                                    background: theme.primary
+                                }}></div>
+                                <span>{theme.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // AIAssistant Component
+        const AIAssistant = () => {
+            const [prompt, setPrompt] = useState('');
+            const [response, setResponse] = useState("Welcome! I'm your AI study assistant. Ask me any questions about your studies and I'll help you learn better! 📖✨");
+            const [isLoading, setIsLoading] = useState(false);
+            const [lengthHint, setLengthHint] = useState(1.0);
+
+            const askAI = async () => {
+                if (!prompt.trim()) {
+                    showToast('Please enter a question!', 'error');
+                    return;
+                }
+
+                setIsLoading(true);
+                setResponse('🤖 AI is thinking about your question...');
+
+                try {
+                    const requestBody = {
+                        prompt: prompt,
+                        length_hint: lengthHint
+                    };
+
+                    const apiResponse = await fetch(`${API_BASE}/api/assistant`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    if (!apiResponse.ok) {
+                        throw new Error(`API request failed: ${apiResponse.status}`);
+                    }
+
+                    const data = await apiResponse.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    setResponse(data.text || 'No response received');
+                    setPrompt('');
+                    showToast('✨ AI response received!');
+
+                } catch (error) {
+                    console.error('AI Error:', error);
+                    setResponse(`❌ Error: ${error.message}\n\nPlease check if the backend server is running on localhost:5000 and try again.`);
+                    showToast('❌ Failed to get AI response', 'error');
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const clearChat = () => {
+                setResponse("Welcome! I'm your AI study assistant. Ask me any questions about your studies and I'll help you learn better! 📖✨");
+                showToast('🗑️ Chat cleared!');
+            };
+
+            const setShortResponse = () => {
+                setLengthHint(0.4);
+                showToast('📝 Set to short responses');
+            };
+
+            const setDetailedResponse = () => {
+                setLengthHint(1.6);
+                showToast('📚 Set to detailed responses');
+            };
+
+            return (
+                <div className="card">
+                    <div className="card-header">
+                        <span className="icon" style={{color: 'var(--primary)'}}>🤖</span>
+                        <h2 className="card-title gradient-text">AI Study Assistant</h2>
+                    </div>
+
+                    <div style={{position: 'relative', marginBottom: '1rem'}}>
+                        <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.ctrlKey && e.key === 'Enter') {
+                                    e.preventDefault();
+                                    askAI();
+                                }
+                            }}
+                            placeholder="Ask me anything about your studies! For example:&#10;• Explain quantum physics concepts&#10;• Create a study plan for calculus&#10;• Summarize the causes of World War I&#10;&#10;Press Ctrl+Enter to send"
+                            className="textarea"
+                            disabled={isLoading}
+                        />
+                        <button
+                            onClick={askAI}
+                            disabled={isLoading}
+                            className="button button-primary button-icon"
+                            style={{position: 'absolute', bottom: '0.5rem', right: '0.5rem', borderRadius: '50%'}}
+                        >
+                            {isLoading ? (
+                                <div className="loading-spinner"></div>
+                            ) : (
+                                <span className="icon-sm">📤</span>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="flex-buttons" style={{justifyContent: 'center', marginBottom: '1rem'}}>
+                        <button className="button button-outline" onClick={setShortResponse}>
+                            <span className="icon-sm">📝</span>
+                            Short
+                        </button>
+                        <button className="button button-outline" onClick={setDetailedResponse}>
+                            <span className="icon-sm">📚</span>
+                            Detailed
+                        </button>
+                        <button className="button button-outline" onClick={clearChat}>
+                            <span className="icon-sm">🗑️</span>
+                            Clear
+                        </button>
+                    </div>
+
+                    <div className="response-box">
+                        {response}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App Component with storage controls
+        const App = () => {
+            const [showStorageControls, setShowStorageControls] = useState(false);
+
+            const exportData = async () => {
+                const success = await encryptedStorage.exportData();
+                if (success) {
+                    showToast('📁 Data exported successfully!');
+                } else {
+                    showToast('❌ Export failed!', 'error');
+                }
+            };
+
+            const importData = async () => {
+                const success = await encryptedStorage.importData();
+                if (success) {
+                    showToast('📁 Data imported successfully! Refreshing...');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast('❌ Import failed!', 'error');
+                }
+            };
+
+            const clearAllData = async () => {
+                if (confirm('Are you sure you want to clear all data? This cannot be undone!')) {
+                    await encryptedStorage.clearAll();
+                    showToast('🗑️ All data cleared! Refreshing...');
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            };
+
+            return (
+                <>
+                    <header>
+                        <div className="container">
+                            <div className="header-content">
+                                <div style={{position: 'relative'}}>
+                                    <span className="icon animate-bounce" style={{color: 'var(--primary)'}}>🎓</span>
+                                </div>
+                                <h1>AI Study Planner</h1>
+                                <span className="icon animate-bounce" style={{color: 'var(--secondary)', animationDelay: '0.5s'}}>✨</span>
+                                <button 
+                                    onClick={() => setShowStorageControls(!showStorageControls)}
+                                    className="button button-outline button-sm"
+                                    style={{marginLeft: '1rem'}}
+                                >
+                                    🔒 Data
+                                </button>
+                            </div>
+                            <p className="subtitle">Your personal AI-powered study companion with encrypted data storage</p>
+                            
+                            {showStorageControls && (
+                                <div style={{
+                                    background: 'rgba(255,255,255,0.9)',
+                                    padding: '1rem',
+                                    borderRadius: '0.5rem',
+                                    marginTop: '1rem',
+                                    display: 'flex',
+                                    gap: '0.5rem',
+                                    justifyContent: 'center',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <button onClick={exportData} className="button button-outline button-sm">
+                                        📤 Export
+                                    </button>
+                                    <button onClick={importData} className="button button-outline button-sm">
+                                        📥 Import
+                                    </button>
+                                    <button onClick={clearAllData} className="button button-outline button-sm">
+                                        🗑️ Clear All
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </header>
+
+                    <main>
+                        <div className="container">
+                            <div className="grid">
+                                <div>
+                                    <StudyCalendar />
+                                </div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                                    <AIAssistant />
+                                    <TaskManager />
+                                </div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                                    <StudyTimer />
+                                    <MusicMood />
+                                    <ThemeSelector />
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </>
+            );
+        };
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
